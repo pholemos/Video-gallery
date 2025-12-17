@@ -1,106 +1,118 @@
 import React, { useMemo } from 'react';
 import VideoCard from './VideoCard';
-import { VideoData } from '../types';
+import { VideoData, WallItem, LinkData } from '../types';
+import { ExternalLink } from 'lucide-react';
 
 interface VideoWallProps {
   videos: VideoData[];
   onVideoClick: (video: VideoData) => void;
 }
 
+const LINKS: LinkData[] = [
+  { label: 'Products', url: 'https://diy-me.com/products' },
+  { label: 'Videos', url: 'https://diy-me.com/videos' },
+  { label: 'Resources', url: 'https://diy-me.com/resources' },
+  { label: 'Apps', url: 'https://diy-me.com/apps' }
+];
+
 const VideoWall: React.FC<VideoWallProps> = ({ videos, onVideoClick }) => {
-  const cardWidth = 380;
-  const numCards = videos.length;
+  const columns = useMemo(() => {
+    // Create 4 empty columns
+    const cols: WallItem[][] = [[], [], [], []];
+    
+    // Function to get a random link
+    const getRandomLink = () => LINKS[Math.floor(Math.random() * LINKS.length)];
 
-  const carouselSettings = useMemo(() => {
-    if (numCards === 0) return { radius: 0, angleStep: 0 };
-    
-    const angleStep = 360 / numCards;
-    const calculatedRadius = (cardWidth / 2) / Math.tan(Math.PI / numCards);
-    
-    // Maintain a generous radius to see the zig-zag depth clearly
-    const radius = Math.max(calculatedRadius, numCards < 5 ? 700 : 1000); 
-    
-    return { radius, angleStep };
-  }, [numCards]);
+    // Distribute videos and insert a RANDOM link AFTER every video in its column
+    videos.forEach((video, idx) => {
+      const colIdx = idx % 4;
+      
+      // Add the video item
+      cols[colIdx].push({ type: 'video', content: video });
+      
+      // Add a random link item immediately after
+      cols[colIdx].push({ 
+        type: 'link', 
+        content: getRandomLink()
+      });
+    });
 
-  const isEmpty = videos.length === 0;
+    return cols;
+  }, [videos]);
+
+  const renderItem = (item: WallItem, idx: number, colIdx: number) => {
+    if (item.type === 'video') {
+      return (
+        <div key={`v-${item.content.id}-${colIdx}-${idx}`} className="mb-6 w-full px-2">
+          <VideoCard video={item.content} onClick={onVideoClick} />
+        </div>
+      );
+    } else {
+      return (
+        <div key={`l-${item.content.label}-${colIdx}-${idx}`} className="mb-6 w-full px-2">
+          <a
+            href={item.content.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group block w-full rounded-2xl border-2 border-red-600/60 bg-red-950/40 p-5 backdrop-blur-xl transition-all hover:border-red-400 hover:bg-red-600/30 hover:shadow-[0_0_30px_rgba(220,38,38,0.5)]"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-black tracking-widest text-white group-hover:text-red-100 uppercase">
+                {item.content.label}
+              </span>
+              <ExternalLink className="h-4 w-4 text-red-500 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+            </div>
+            <div className="mt-1 flex items-center gap-2">
+              <div className="h-1 w-8 rounded-full bg-red-600/80" />
+              <p className="text-[10px] text-red-300 font-bold uppercase tracking-widest">Explore More</p>
+            </div>
+          </a>
+        </div>
+      );
+    }
+  };
 
   return (
-    <div className="absolute inset-0 z-0 h-full w-full overflow-hidden bg-[#020617] scene">
-      {/* Dynamic Background Effects */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_45%,_var(--tw-gradient-stops))] from-cyan-500/10 via-slate-950/40 to-slate-950 pointer-events-none" />
-      
-      {/* Requested Logo Background */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
+    <div className="absolute inset-0 z-0 h-full w-full overflow-hidden bg-[#020617] flex pause-on-hover">
+      {/* Background Logo */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
         <img 
           src="https://raw.githubusercontent.com/doityoumadeeasy-dev/images/ccdb03b87b32be5a5e65e5304a83d71fc83b11f5/Conf/DIY_ME%20Logo.png" 
-          alt="DIY ME Logo Background"
-          className="w-[80%] max-w-4xl opacity-[0.07] filter grayscale blur-[2px]"
+          alt="DIY ME Logo"
+          className="w-[70%] max-w-3xl opacity-[0.12] grayscale brightness-125 contrast-125 mix-blend-overlay"
         />
       </div>
 
-      {/* Background star texture */}
-      <div 
-        className="absolute inset-0 opacity-[0.1] pointer-events-none translate-z-[-1000px]"
-        style={{
-          backgroundImage: `radial-gradient(circle, #334155 1px, transparent 1px)`,
-          backgroundSize: '120px 120px'
-        }}
-      />
+      {/* Main Grid with 4 columns */}
+      <div className="relative z-10 grid grid-cols-4 w-full h-full gap-4 px-4">
+        {columns.map((colItems, colIdx) => {
+          const isUp = colIdx === 0 || colIdx === 2; // 1st and 3rd go up
+          const animationClass = isUp ? 'animate-marquee-up' : 'animate-marquee-down';
+          // Variation in speeds
+          const duration = `${40 + colIdx * 10}s`;
 
-      {isEmpty ? (
-        <div className="flex items-center justify-center h-full w-full">
-          <div className="text-center opacity-20">
-            <p className="text-4xl font-bold text-slate-500 mb-2 tracking-tighter uppercase">No Signal</p>
-            <p className="text-slate-600 font-medium">Try broadening your search criteria</p>
-          </div>
-        </div>
-      ) : (
-        <div className="flex items-center justify-center h-full w-full">
-          <div 
-            className="carousel-3d animate-rotate-3d flex items-center justify-center"
-            style={{ 
-              '--duration': `${Math.max(40, numCards * 2.5)}s`,
-              transform: 'rotateX(-2deg)' 
-            } as React.CSSProperties}
-          >
-            {videos.map((video, index) => {
-              const rotation = index * carouselSettings.angleStep;
-              
-              // Zig Zag Logic:
-              // Alternate between high and low positions
-              const zigZagAmount = 140; 
-              const isEven = index % 2 === 0;
-              const zigZagY = isEven ? -zigZagAmount : zigZagAmount;
-              
-              // Tilt the card slightly on the Z axis to align with the zig-zag path
-              const tiltZ = isEven ? 5 : -5;
+          // Double the items for a seamless infinite loop
+          const doubledItems = [...colItems, ...colItems];
 
-              return (
-                <div
-                  key={`${video.id}-${index}`}
-                  className="absolute reflect-card"
-                  style={{
-                    width: `${cardWidth}px`,
-                    transform: `rotateY(${rotation}deg) translateZ(${carouselSettings.radius}px) translateY(${zigZagY}px) rotateZ(${tiltZ}deg)`,
-                    backfaceVisibility: 'hidden',
-                    willChange: 'transform',
-                    transition: 'opacity 0.5s ease, transform 0.5s ease-out'
-                  }}
-                >
-                  <VideoCard video={video} onClick={onVideoClick} />
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
+          return (
+            <div key={`col-${colIdx}`} className="relative h-full overflow-hidden">
+              <div 
+                className={`flex flex-col ${animationClass}`}
+                style={{ '--duration': duration } as React.CSSProperties}
+              >
+                {doubledItems.map((item, itemIdx) => renderItem(item, itemIdx, colIdx))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Depth Overlays with a subtle red tint */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[#020617] via-transparent via-50% to-[#020617] opacity-60 pointer-events-none z-20" />
+      <div className="absolute inset-0 bg-gradient-to-r from-[#020617] via-red-950/5 via-50% to-[#020617] opacity-40 pointer-events-none z-20" />
       
-      {/* Focal depth overlays */}
-      <div className="absolute inset-0 bg-gradient-to-b from-slate-950/90 via-transparent to-slate-950/90 pointer-events-none" />
-      
-      {/* Spotlight on the "Front" card area */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[700px] bg-cyan-500/5 blur-[150px] rounded-full pointer-events-none" />
+      {/* Dynamic scanline/grain effect */}
+      <div className="absolute inset-0 opacity-[0.04] pointer-events-none z-30 bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
     </div>
   );
 };

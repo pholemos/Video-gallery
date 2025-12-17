@@ -16,31 +16,27 @@
         overflow: hidden;
       }
       
-      .scene {
-        perspective: 1200px;
-        perspective-origin: 50% 45%;
+      @keyframes marquee-up {
+        0% { transform: translateY(0); }
+        100% { transform: translateY(-50%); }
       }
 
-      .carousel-3d {
-        transform-style: preserve-3d;
-        transition: transform 1s cubic-bezier(0.23, 1, 0.32, 1);
+      @keyframes marquee-down {
+        0% { transform: translateY(-50%); }
+        100% { transform: translateY(0); }
       }
 
-      @keyframes rotate-carousel {
-        from { transform: rotateY(360deg); }
-        to { transform: rotateY(0deg); }
+      .animate-marquee-up {
+        animation: marquee-up var(--duration, 40s) linear infinite;
       }
 
-      .animate-rotate-3d {
-        animation: rotate-carousel var(--duration, 60s) linear infinite;
+      .animate-marquee-down {
+        animation: marquee-down var(--duration, 40s) linear infinite;
       }
 
-      .scene:hover .animate-rotate-3d {
+      .pause-on-hover:hover .animate-marquee-up,
+      .pause-on-hover:hover .animate-marquee-down {
         animation-play-state: paused;
-      }
-
-      .reflect-card {
-        -webkit-box-reflect: bottom 10px linear-gradient(transparent, transparent 70%, rgba(255, 255, 255, 0.1));
       }
 
       ::-webkit-scrollbar {

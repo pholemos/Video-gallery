@@ -5,20 +5,28 @@ interface HeroProps {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   resultsCount: number;
+  onEnter: () => void;
 }
 
 const Hero: React.FC<HeroProps> = ({ 
   searchQuery, 
   setSearchQuery, 
-  resultsCount 
+  resultsCount,
+  onEnter
 }) => {
   const isFiltered = searchQuery !== '';
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      onEnter();
+    }
+  };
 
   return (
     <div className="absolute inset-0 z-20 flex flex-col items-center justify-center pointer-events-none px-6">
       <div className="relative w-full max-w-4xl text-center">
-        {/* Glow effect behind text */}
-        <div className="absolute left-1/2 top-1/2 -z-10 h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-500/10 blur-[100px]" />
+        {/* Red Glow effect behind text */}
+        <div className="absolute left-1/2 top-1/2 -z-10 h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-red-600/10 blur-[100px]" />
         
         <h1 className="mb-4 bg-gradient-to-b from-white to-slate-400 bg-clip-text text-5xl font-extrabold tracking-tighter text-transparent sm:text-7xl drop-shadow-sm uppercase">
           Explore
@@ -26,21 +34,22 @@ const Hero: React.FC<HeroProps> = ({
         
         <p className="mx-auto mb-8 max-w-xl text-base text-slate-400 sm:text-lg leading-relaxed">
           {isFiltered 
-            ? `Found ${resultsCount} tutorials matching your search.`
+            ? `Found ${resultsCount} tutorials matching your search. Press Enter to view list.`
             : "Master smart home technology with our latest expert tutorials and DIY guides."
           }
         </p>
 
-        {/* Search Bar */}
+        {/* Search Bar - Red Highlights */}
         <div className="flex flex-col items-stretch gap-3 mb-10 pointer-events-auto max-w-lg mx-auto w-full">
           <div className="relative w-full group">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500 group-focus-within:text-cyan-400 transition-colors" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500 group-focus-within:text-red-500 transition-colors" />
             <input 
               type="text"
-              placeholder="Search tutorials..."
+              placeholder="Search tutorials... (Press Enter)"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-slate-800/60 border border-slate-700 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500 transition-all backdrop-blur-md"
+              onKeyDown={handleKeyDown}
+              className="w-full bg-slate-800/60 border border-slate-700 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-red-600/50 focus:border-red-600 transition-all backdrop-blur-md"
             />
             {searchQuery && (
               <button 

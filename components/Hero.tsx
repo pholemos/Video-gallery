@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Youtube, Search, X, Play } from 'lucide-react';
+import { Search, X, Play } from 'lucide-react';
 import { VIDEO_DATA } from '../constants';
 import { VideoData } from '../types';
 
@@ -9,6 +9,17 @@ interface HeroProps {
   resultsCount: number;
   onEnter: () => void;
 }
+
+const YoutubeIcon = ({ className }: { className?: string }) => (
+  <svg 
+    viewBox="0 0 24 24" 
+    fill="currentColor" 
+    className={className}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+  </svg>
+);
 
 const Hero: React.FC<HeroProps> = ({ 
   searchQuery, 
@@ -21,8 +32,10 @@ const Hero: React.FC<HeroProps> = ({
 
   useEffect(() => {
     const interval = setInterval(() => {
-      const randomIndex = Math.floor(Math.random() * VIDEO_DATA.length);
-      setFeaturedVideo(VIDEO_DATA[randomIndex]);
+      // Select from the 15 most recent videos (first 15 items in the sorted array)
+      const recentVideos = VIDEO_DATA.slice(0, 15);
+      const randomIndex = Math.floor(Math.random() * recentVideos.length);
+      setFeaturedVideo(recentVideos[randomIndex]);
 
       // Close after 3 seconds
       setTimeout(() => {
@@ -92,7 +105,7 @@ const Hero: React.FC<HeroProps> = ({
             rel="noopener noreferrer"
             className="group flex items-center gap-2 rounded-full bg-red-600 px-10 py-4 text-base font-bold text-white shadow-lg shadow-red-600/25 transition-all hover:bg-red-500 hover:shadow-red-600/40 hover:-translate-y-1"
           >
-            <Youtube className="h-5 w-5 fill-current" />
+            <YoutubeIcon className="h-5 w-5" />
             <span className="uppercase tracking-widest">Subscribe</span>
           </a>
 
@@ -113,7 +126,7 @@ const Hero: React.FC<HeroProps> = ({
                     <Play fill="white" className="h-8 w-8 text-white" />
                   </div>
                   <div className="absolute top-2 left-2 rounded bg-red-600 px-1.5 py-0.5 text-[8px] font-black text-white uppercase tracking-tighter">
-                    Suggested
+                    Suggested for you
                   </div>
                 </div>
                 <div className="p-2 text-left">

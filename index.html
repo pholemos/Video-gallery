@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TechStream Landing</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: #020617;
+        color: white;
+        overflow: hidden;
+      }
+      
+      /* 3D Scene Setup */
+      .scene {
+        perspective: 1200px;
+        perspective-origin: 50% 45%;
+      }
+
+      .carousel-3d {
+        transform-style: preserve-3d;
+        transition: transform 1s cubic-bezier(0.23, 1, 0.32, 1);
+      }
+
+      @keyframes rotate-carousel {
+        from { transform: rotateY(360deg); }
+        to { transform: rotateY(0deg); }
+      }
+
+      .animate-rotate-3d {
+        animation: rotate-carousel var(--duration, 60s) linear infinite;
+      }
+
+      .scene:hover .animate-rotate-3d {
+        animation-play-state: paused;
+      }
+
+      /* Reflection effect for that premium "carousel" look */
+      .reflect-card {
+        -webkit-box-reflect: bottom 10px linear-gradient(transparent, transparent 70%, rgba(255, 255, 255, 0.1));
+      }
+
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #0f172a; 
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #334155; 
+        border-radius: 4px;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "lucide-react": "https://esm.sh/lucide-react@^0.561.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>

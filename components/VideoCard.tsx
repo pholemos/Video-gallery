@@ -1,5 +1,5 @@
 import React from 'react';
-import { Play, Calendar } from 'lucide-react';
+import { Play } from 'lucide-react';
 import { VideoCardProps } from '../types';
 
 const VideoCard: React.FC<VideoCardProps> = ({ video, onClick }) => {
@@ -36,11 +36,7 @@ const VideoCard: React.FC<VideoCardProps> = ({ video, onClick }) => {
           {video.title}
         </h3>
         
-        <div className="mt-3 flex items-center justify-between text-[10px] text-slate-300 font-bold uppercase tracking-widest border-t border-white/5 pt-3">
-          <div className="flex items-center gap-1.5">
-            <Calendar className="h-3.5 w-3.5 text-red-500" />
-            <span>{video.date}</span>
-          </div>
+        <div className="mt-3 flex items-center justify-end text-[10px] text-slate-300 font-bold uppercase tracking-widest border-t border-white/5 pt-3">
           <span className="text-red-600 group-hover:text-red-500 transition-colors">Watch Now</span>
         </div>
       </div>

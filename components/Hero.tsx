@@ -1,5 +1,7 @@
-import React from 'react';
-import { Youtube, Search, X } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Youtube, Search, X, Play } from 'lucide-react';
+import { VIDEO_DATA } from '../constants';
+import { VideoData } from '../types';
 
 interface HeroProps {
   searchQuery: string;
@@ -14,11 +16,32 @@ const Hero: React.FC<HeroProps> = ({
   resultsCount,
   onEnter
 }) => {
+  const [featuredVideo, setFeaturedVideo] = useState<VideoData | null>(null);
   const isFiltered = searchQuery !== '';
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const randomIndex = Math.floor(Math.random() * VIDEO_DATA.length);
+      setFeaturedVideo(VIDEO_DATA[randomIndex]);
+
+      // Close after 3 seconds
+      setTimeout(() => {
+        setFeaturedVideo(null);
+      }, 3000);
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       onEnter();
+    }
+  };
+
+  const handleFeaturedClick = () => {
+    if (featuredVideo) {
+      window.open(`https://www.youtube.com/watch?v=${featuredVideo.id}`, '_blank', 'noopener,noreferrer');
     }
   };
 
@@ -62,7 +85,7 @@ const Hero: React.FC<HeroProps> = ({
           </div>
         </div>
 
-        <div className="flex flex-col items-center justify-center gap-4 sm:flex-row pointer-events-auto">
+        <div className="flex flex-col items-center justify-center gap-4 sm:flex-row pointer-events-auto relative">
           <a 
             href="https://www.youtube.com/@diymadeeasy1824?sub_confirmation=1" 
             target="_blank"
@@ -72,6 +95,38 @@ const Hero: React.FC<HeroProps> = ({
             <Youtube className="h-5 w-5 fill-current" />
             <span className="uppercase tracking-widest">Subscribe</span>
           </a>
+
+          {/* Random Featured Video Popup */}
+          <div className={`absolute top-full mt-6 w-full max-w-[280px] transition-all duration-500 transform ${featuredVideo ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'}`}>
+            {featuredVideo && (
+              <button 
+                onClick={handleFeaturedClick}
+                className="group flex w-full flex-col overflow-hidden rounded-xl border border-red-500/40 bg-slate-900/90 p-2 shadow-2xl shadow-red-900/20 backdrop-blur-xl transition-transform hover:scale-105"
+              >
+                <div className="relative aspect-video w-full overflow-hidden rounded-lg">
+                  <img 
+                    src={featuredVideo.thumb} 
+                    alt={featuredVideo.title}
+                    className="h-full w-full object-cover"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center bg-red-600/20 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Play fill="white" className="h-8 w-8 text-white" />
+                  </div>
+                  <div className="absolute top-2 left-2 rounded bg-red-600 px-1.5 py-0.5 text-[8px] font-black text-white uppercase tracking-tighter">
+                    Suggested
+                  </div>
+                </div>
+                <div className="p-2 text-left">
+                  <h4 className="line-clamp-1 text-[10px] font-black text-white uppercase tracking-tight group-hover:text-red-400 transition-colors">
+                    {featuredVideo.title}
+                  </h4>
+                  <p className="mt-1 text-[8px] font-bold text-red-500 uppercase tracking-widest">
+                    Watch Now
+                  </p>
+                </div>
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>

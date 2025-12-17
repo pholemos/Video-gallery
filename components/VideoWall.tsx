@@ -73,13 +73,13 @@ const VideoWall: React.FC<VideoWallProps> = ({ videos, onVideoClick }) => {
   };
 
   return (
-    <div className="absolute inset-0 z-0 h-full w-full overflow-hidden bg-[#020617] flex pause-on-hover">
+    <div className="absolute inset-0 z-0 h-full w-full overflow-hidden bg-black flex pause-on-hover">
       {/* Background Logo */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
         <img 
           src="https://raw.githubusercontent.com/doityoumadeeasy-dev/images/ccdb03b87b32be5a5e65e5304a83d71fc83b11f5/Conf/DIY_ME%20Logo.png" 
           alt="DIY ME Logo"
-          className="w-[70%] max-w-3xl opacity-[0.12] grayscale brightness-125 contrast-125 mix-blend-overlay"
+          className="w-[70%] max-w-3xl opacity-[0.15] grayscale brightness-125 contrast-150 mix-blend-overlay"
         />
       </div>
 
@@ -107,12 +107,12 @@ const VideoWall: React.FC<VideoWallProps> = ({ videos, onVideoClick }) => {
         })}
       </div>
 
-      {/* Depth Overlays with a subtle red tint */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#020617] via-transparent via-50% to-[#020617] opacity-60 pointer-events-none z-20" />
-      <div className="absolute inset-0 bg-gradient-to-r from-[#020617] via-red-950/5 via-50% to-[#020617] opacity-40 pointer-events-none z-20" />
+      {/* Depth Overlays with pure black for deeper contrast */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent via-50% to-black opacity-80 pointer-events-none z-20" />
+      <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent via-50% to-black opacity-60 pointer-events-none z-20" />
       
       {/* Dynamic scanline/grain effect */}
-      <div className="absolute inset-0 opacity-[0.04] pointer-events-none z-30 bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+      <div className="absolute inset-0 opacity-[0.05] pointer-events-none z-30 bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
     </div>
   );
 };

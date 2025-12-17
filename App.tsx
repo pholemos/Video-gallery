@@ -30,7 +30,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="relative h-screen w-full overflow-hidden bg-slate-900 text-white">
+    <div className="relative h-screen w-full overflow-hidden bg-black text-white">
       {/* Background Floating Wall - Only interactive if not in results view */}
       <div className={view === 'results' ? 'blur-md pointer-events-none' : ''}>
         <VideoWall 

@@ -17,7 +17,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
   onVideoClick 
 }) => {
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-[#020617] p-6 sm:p-10">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black p-6 sm:p-10">
       <div className="mx-auto max-w-7xl">
         {/* Header */}
         <div className="mb-10 flex flex-col items-start justify-between gap-6 border-b border-red-900/30 pb-8 sm:flex-row sm:items-center">

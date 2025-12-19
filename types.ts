@@ -1,4 +1,3 @@
-
 // Removed self-import of VideoData to resolve conflict with local declaration.
 export interface VideoData {
   id: string;
@@ -13,9 +12,15 @@ export interface LinkData {
   url: string;
 }
 
+export interface NewsData {
+  headline: string;
+  source: string;
+}
+
 export type WallItem = 
   | { type: 'video'; content: VideoData }
-  | { type: 'link'; content: LinkData };
+  | { type: 'link'; content: LinkData }
+  | { type: 'news'; content: NewsData };
 
 export interface VideoCardProps {
   video: VideoData;

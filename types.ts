@@ -1,3 +1,4 @@
+
 // Removed self-import of VideoData to resolve conflict with local declaration.
 export interface VideoData {
   id: string;
@@ -12,16 +13,16 @@ export interface LinkData {
   url: string;
 }
 
+// Added NewsData interface to resolve the import error in NewsModal.tsx
 export interface NewsData {
   headline: string;
-  source: string;
   detail: string;
+  source: string;
 }
 
 export type WallItem = 
   | { type: 'video'; content: VideoData }
-  | { type: 'link'; content: LinkData }
-  | { type: 'news'; content: NewsData };
+  | { type: 'link'; content: LinkData };
 
 export interface VideoCardProps {
   video: VideoData;

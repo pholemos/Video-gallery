@@ -7,6 +7,7 @@ import { GoogleGenAI, Type } from "@google/genai";
 interface VideoWallProps {
   videos: VideoData[];
   onVideoClick: (video: VideoData) => void;
+  onNewsClick: (news: NewsData) => void;
 }
 
 const LINKS: LinkData[] = [
@@ -17,29 +18,36 @@ const LINKS: LinkData[] = [
 ];
 
 const DEFAULT_NEWS: NewsData[] = [
-  { headline: "Home Assistant 2025.1: New Voice features released", source: "HA Blog" },
-  { headline: "Matter 1.4 expands smart home compatibility", source: "TechDaily" },
-  { headline: "Nabu Casa announces new hardware tier", source: "SmartHome News" },
-  { headline: "Local AI: Why it's the future of automation", source: "DIY Tech" }
+  { 
+    headline: "Home Assistant 2025.1: New Voice features released", 
+    source: "HA Blog",
+    detail: "The first release of 2025 brings massive improvements to local voice processing. Users can now define custom wake words entirely on-device without needing Nabu Casa cloud services."
+  },
+  { 
+    headline: "Matter 1.4 expands smart home compatibility", 
+    source: "TechDaily",
+    detail: "The Connectivity Standards Alliance has officially launched Matter 1.4, adding support for energy management systems and complex multi-admin scenarios for mixed-brand environments."
+  },
+  { 
+    headline: "Nabu Casa announces new hardware tier", 
+    source: "SmartHome News",
+    detail: "A new powerful Home Assistant controller has been teased by Nabu Casa, featuring an integrated NPU for local AI tasks and expanded Zigbee/Thread antenna arrays."
+  }
 ];
 
-const VideoWall: React.FC<VideoWallProps> = ({ videos, onVideoClick }) => {
+const VideoWall: React.FC<VideoWallProps> = ({ videos, onVideoClick, onNewsClick }) => {
   const [news, setNews] = useState<NewsData[]>(DEFAULT_NEWS);
 
   useEffect(() => {
     const fetchNews = async () => {
-      // Defensive check for environment variables
       const apiKey = typeof process !== 'undefined' ? process.env.API_KEY : undefined;
-      if (!apiKey) {
-        console.warn("API Key not found, using default news.");
-        return;
-      }
+      if (!apiKey) return;
 
       try {
         const ai = new GoogleGenAI({ apiKey });
         const response = await ai.models.generateContent({
           model: "gemini-3-flash-preview",
-          contents: "Generate 12 short, catchy news headlines about Home Assistant, ESPHome, Zigbee, and smart home automation. Make them sound like current news. For each, provide a short source name.",
+          contents: "Generate 15 short, catchy news headlines about Home Assistant, ESPHome, Zigbee, and smart home automation. For each item, provide: 1) A headline, 2) A short source name, 3) A 2-3 sentence detail paragraph about the news for a popup. Return valid JSON.",
           config: {
             responseMimeType: "application/json",
             responseSchema: {
@@ -49,15 +57,15 @@ const VideoWall: React.FC<VideoWallProps> = ({ videos, onVideoClick }) => {
                 properties: {
                   headline: { type: Type.STRING },
                   source: { type: Type.STRING },
+                  detail: { type: Type.STRING },
                 },
-                required: ["headline", "source"],
+                required: ["headline", "source", "detail"],
               },
             },
           },
         });
         
         let text = response.text || "";
-        // Clean markdown if present
         if (text.includes("```json")) {
           text = text.split("```json")[1].split("```")[0].trim();
         } else if (text.includes("```")) {
@@ -71,7 +79,7 @@ const VideoWall: React.FC<VideoWallProps> = ({ videos, onVideoClick }) => {
           }
         }
       } catch (error) {
-        console.error("Failed to fetch news from Gemini:", error);
+        console.error("Failed to fetch news:", error);
       }
     };
 
@@ -80,26 +88,33 @@ const VideoWall: React.FC<VideoWallProps> = ({ videos, onVideoClick }) => {
 
   const columns = useMemo(() => {
     const cols: WallItem[][] = [[], [], [], []];
-    const getRandomLink = () => LINKS[Math.floor(Math.random() * LINKS.length)];
-
-    // Ensure news is never empty to avoid division by zero
     const safeNews = news.length > 0 ? news : DEFAULT_NEWS;
-
+    
+    // Create a pool of items to distribute
+    const newsPool = [...safeNews];
+    const linkPool = [...LINKS];
+    
     videos.forEach((video, idx) => {
       const colIdx = idx % 4;
       
-      // Add video
-      cols[colIdx].push({ type: 'video', content: video });
+      // Items for this "row" in the column
+      const items: WallItem[] = [{ type: 'video', content: video }];
       
-      // Add news between video and link
-      const newsItem = safeNews[idx % safeNews.length];
-      cols[colIdx].push({ type: 'news', content: newsItem });
+      // Add a news item
+      const newsItem = newsPool[Math.floor(Math.random() * newsPool.length)];
+      items.push({ type: 'news', content: newsItem });
       
-      // Add link
-      cols[colIdx].push({ 
-        type: 'link', 
-        content: getRandomLink()
-      });
+      // Add a link item
+      const linkItem = LINKS[Math.floor(Math.random() * LINKS.length)];
+      items.push({ type: 'link', content: linkItem });
+
+      // SHUFFLE the items for this specific segment to make it random
+      for (let i = items.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [items[i], items[j]] = [items[j], items[i]];
+      }
+
+      cols[colIdx].push(...items);
     });
 
     return cols;
@@ -109,13 +124,13 @@ const VideoWall: React.FC<VideoWallProps> = ({ videos, onVideoClick }) => {
     switch (item.type) {
       case 'video':
         return (
-          <div key={`v-${item.content.id}-${colIdx}-${idx}`} className="mb-6 w-full px-2">
+          <div key={`v-${idx}-${colIdx}`} className="mb-6 w-full px-2">
             <VideoCard video={item.content} onClick={onVideoClick} />
           </div>
         );
       case 'link':
         return (
-          <div key={`l-${item.content.label}-${colIdx}-${idx}`} className="mb-6 w-full px-2">
+          <div key={`l-${idx}-${colIdx}`} className="mb-6 w-full px-2">
             <a
               href={item.content.url}
               target="_blank"
@@ -138,7 +153,10 @@ const VideoWall: React.FC<VideoWallProps> = ({ videos, onVideoClick }) => {
       case 'news':
         return (
           <div key={`n-${idx}-${colIdx}`} className="mb-6 w-full px-2">
-            <div className="group relative w-full rounded-2xl border-2 border-blue-500/40 bg-slate-900/60 p-5 backdrop-blur-xl transition-all hover:border-blue-400 hover:bg-slate-800/80 hover:shadow-[0_0_30px_rgba(59,130,246,0.3)]">
+            <div 
+              onClick={() => onNewsClick(item.content)}
+              className="group relative w-full cursor-pointer rounded-2xl border-2 border-blue-500/40 bg-slate-900/60 p-5 backdrop-blur-xl transition-all hover:border-blue-400 hover:bg-slate-800/80 hover:shadow-[0_0_30px_rgba(59,130,246,0.3)] hover:scale-[1.02]"
+            >
               <div className="absolute -top-2 -left-2 rounded bg-blue-600 px-2 py-0.5 text-[8px] font-black text-white uppercase tracking-tighter flex items-center gap-1 shadow-lg">
                 <Newspaper className="h-2 w-2" />
                 Latest News
@@ -153,7 +171,7 @@ const VideoWall: React.FC<VideoWallProps> = ({ videos, onVideoClick }) => {
                     {item.content.source}
                   </span>
                 </div>
-                <span className="text-[9px] font-bold text-slate-500 uppercase">Just Now</span>
+                <span className="text-[9px] font-bold text-slate-500 uppercase">Read Story</span>
               </div>
             </div>
           </div>
@@ -165,7 +183,6 @@ const VideoWall: React.FC<VideoWallProps> = ({ videos, onVideoClick }) => {
 
   return (
     <div className="absolute inset-0 z-0 h-full w-full overflow-hidden bg-black flex pause-on-hover">
-      {/* Background Logo */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
         <img 
           src="https://raw.githubusercontent.com/doityoumadeeasy-dev/images/ccdb03b87b32be5a5e65e5304a83d71fc83b11f5/Conf/DIY_ME%20Logo.png" 
@@ -174,14 +191,11 @@ const VideoWall: React.FC<VideoWallProps> = ({ videos, onVideoClick }) => {
         />
       </div>
 
-      {/* Main Grid with 4 columns */}
       <div className="relative z-10 grid grid-cols-4 w-full h-full gap-4 px-4">
         {columns.map((colItems, colIdx) => {
-          const isUp = colIdx === 0 || colIdx === 2; // 1st and 3rd go up
+          const isUp = colIdx === 0 || colIdx === 2;
           const animationClass = isUp ? 'animate-marquee-up' : 'animate-marquee-down';
-          const duration = `${50 + colIdx * 12}s`;
-
-          // Double the items for a seamless infinite loop
+          const duration = `${60 + colIdx * 15}s`;
           const doubledItems = [...colItems, ...colItems];
 
           return (
@@ -197,11 +211,8 @@ const VideoWall: React.FC<VideoWallProps> = ({ videos, onVideoClick }) => {
         })}
       </div>
 
-      {/* Depth Overlays */}
       <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent via-50% to-black opacity-80 pointer-events-none z-20" />
       <div className="absolute inset-0 bg-gradient-to-r from-black via-transparent via-50% to-black opacity-60 pointer-events-none z-20" />
-      
-      {/* Dynamic scanline/grain effect */}
       <div className="absolute inset-0 opacity-[0.05] pointer-events-none z-30 bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
     </div>
   );

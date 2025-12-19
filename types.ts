@@ -15,6 +15,7 @@ export interface LinkData {
 export interface NewsData {
   headline: string;
   source: string;
+  detail: string;
 }
 
 export type WallItem = 

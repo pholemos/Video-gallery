@@ -2,7 +2,8 @@ import React, { useState, useMemo } from 'react';
 import VideoWall from './components/VideoWall';
 import Hero from './components/Hero';
 import SearchResults from './components/SearchResults';
-import { VideoData } from './types';
+import NewsModal from './components/NewsModal';
+import { VideoData, NewsData } from './types';
 import { VIDEO_DATA } from './constants';
 
 type AppView = 'landing' | 'results';
@@ -10,6 +11,7 @@ type AppView = 'landing' | 'results';
 const App: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [view, setView] = useState<AppView>('landing');
+  const [selectedNews, setSelectedNews] = useState<NewsData | null>(null);
 
   const filteredVideos = useMemo(() => {
     return VIDEO_DATA.filter(video => {
@@ -19,6 +21,10 @@ const App: React.FC = () => {
 
   const handleVideoClick = (video: VideoData) => {
     window.open(`https://www.youtube.com/watch?v=${video.id}`, '_blank', 'noopener,noreferrer');
+  };
+
+  const handleNewsClick = (news: NewsData) => {
+    setSelectedNews(news);
   };
 
   const handleSearchEnter = () => {
@@ -36,6 +42,7 @@ const App: React.FC = () => {
         <VideoWall 
           videos={filteredVideos} 
           onVideoClick={handleVideoClick} 
+          onNewsClick={handleNewsClick}
         />
       </div>
 
@@ -58,6 +65,12 @@ const App: React.FC = () => {
           onVideoClick={handleVideoClick}
         />
       )}
+
+      {/* News Detail Modal */}
+      <NewsModal 
+        news={selectedNews} 
+        onClose={() => setSelectedNews(null)} 
+      />
     </div>
   );
 };

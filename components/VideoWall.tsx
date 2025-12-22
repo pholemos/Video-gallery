@@ -9,7 +9,7 @@ interface VideoWallProps {
 }
 
 const LINKS: LinkData[] = [
-  { label: 'Products', url: 'https://diy-me.com/products' },
+  { label: 'Devices', url: 'https://diy-me.com/devices' },
   { label: 'Videos', url: 'https://diy-me.com/videos' },
   { label: 'Resources', url: 'https://diy-me.com/resources' },
   { label: 'Apps', url: 'https://diy-me.com/apps' }
